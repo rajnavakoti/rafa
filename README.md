@@ -14,6 +14,43 @@ Sure, there are other open-source frameworks like LlamaIndex or LanChain, but th
 
 Rafa, on the other hand, is like your favorite comfort food - easy to use, secure, and reliable. It's designed to be a comprehensive tool for implementing RAG, so you don't have to worry about the nitty-gritty details. 🧘‍♀️
 
+## How Rafa Works 🛠️
+
+Rafa is like a backend service that can be deployed and can be integrated through REST APIs. It's built on top of LLamaIndex, LangChain, and other open-source libraries, so you can be sure that it's reliable and secure. Rafa is designed to be scalable, so you can use it for small projects or large-scale applications. It's like a Swiss Army knife for RAG! 🇨🇭
+
+Here's a high-level overview of how Rafa works:
+
+```plantuml
+@startuml
+package "Rafa Service" {
+  [Agents]
+  [Embeddings]
+  [Indexing]
+  [Data Loading]
+  [Data Pipelines]
+  [Storage]
+  [Evaluation]
+}
+
+package "Applications" {
+  [UI]
+  [Chatbot]
+  [AI_Assistant]
+  [Application]
+}
+
+
+package "Users" {
+  [User]
+  [Application]
+}
+
+Applications --> "Rafa Service" : Query
+"Rafa Service" --> Applications : LLM response
+Users --> "Rafa Service" : data upload
+@enduml
+```
+
 ## Getting Started 🏁
 
 Ready to take Rafa for a spin? Check out the installation and usage instructions in the documentation. It's as easy as pie! 🥧
