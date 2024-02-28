@@ -19,6 +19,11 @@ sentence-transformers = "^2.4.0"
 llama-index-embeddings-huggingface = "^0.1.3"
 pyautogen = "^0.2.15"
 ipython = "^8.22.1"
+crewai = "^0.16.2"
+pypdf = "^4.0.2"
+langchain = "^0.1.9"
+duckduckgo-search = "^4.5.0"
+unstructured = "^0.12.5"
 
 [tool.poetry.group.dev.dependencies]
 pylint = "^3.0.4"
