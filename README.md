@@ -31,7 +31,7 @@ However, if you fancy yourself a bit tech-savvy, you have the freedom to customi
 Here's a high-level overview of how Rafa architecture:sacey 
 
 <p align="center">
-<img src="rafa_framework.png"  width="800" height="600">
+<img src="rafa_framework.png"  width="600" height="800">
 </p>
 
 ## Getting Started 🏁
