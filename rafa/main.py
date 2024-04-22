@@ -29,12 +29,15 @@ def document_indexing_flow():
 def query_response(query: str) -> str:
     index = vector_store_indexing.index_from_storage()
     query_engine = index.as_query_engine(llm=LLM)
-    response = query_engine.query(query)
+    chat_engine = index.as_chat_engine(llm=LLM)
+    # response = query_engine.query(query)
+    response = chat_engine.chat(query)
     print("response is: ", response)
+    print("response of response is: ", response.response)
     return response
 
 if __name__ == "__main__":
-    # document_indexing_flow()
-    query_response("What is the name of the book?")
+    #document_indexing_flow()
+    query_response("can you check again?")
 
 

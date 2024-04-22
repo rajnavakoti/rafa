@@ -30,22 +30,24 @@ async def websocket_handler(request):
     await ws.prepare(request)
     async for msg in ws:
         if msg.type == aiohttp.web.WSMsgType.TEXT:
-            response = get_query_answer(msg.data)
+            # response = get_query_answer(msg.data)
+            response = get_chat_response(msg.data)
             await ws.send_str(str(response))  # Convert response to string before sending
     await ws.close()  # Close the WebSocket connection
     return ws
 
 def get_query_answer(query: str) -> str:
     index = vector_store_indexing.index_from_storage()
-    query_engine = index.as_query_engine(text_qa_template=text_qa_template, llm=LLM)
+    query_engine = index.as_query_engine(text_qa_template=text_qa_template, llm=LLM, chat_mode='condense_plus_context')
     response = query_engine.query(query)
     print("response is: ", response)
     return response
 
 def get_chat_response(query: str) -> str:
     index = vector_store_indexing.index_from_storage()
-    chat_engine = index.as_chat_engine(verbose=True, llm=LLM, text_qa_template=text_qa_template)
+    chat_engine = index.as_chat_engine(verbose=True, llm=LLM, text_qa_template=text_qa_template, chat_mode='condense_plus_context')
     response = chat_engine.chat(query)
+    print("response is: ", response)
     return response
 
 app = web.Application()

@@ -19,7 +19,10 @@ def index_vector_store(nodes, storage_context):
 
 def index_from_storage():
     print("PERSIST_DB is: ", PERSIST_DB)
-    storage_context = StorageContext.from_defaults(persist_dir=PERSIST_DB)
+    root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    print("Root path:", root_path)
+    vector_db_path = os.path.join(root_path, "vector_db")
+    storage_context = StorageContext.from_defaults(persist_dir=vector_db_path)
     index = load_index_from_storage(embed_model=EMBED_MODEL, callback_manager=CALLBACK_MANAGER,
                                     storage_context=storage_context)
     return index
