@@ -1,0 +1,23 @@
+# Dockerfile.streamlit_app
+FROM python:3.8
+WORKDIR /app
+COPY . /app
+
+# Create a directory for the non-root user's Python packages
+RUN mkdir -p /home/user1/.local/lib/python3.8/site-packages
+
+# Set environment variables for pip and Python
+ENV PIP_TARGET=/home/user1/.local/lib/python3.8/site-packages
+ENV PYTHONPATH=${PYTHONPATH}:${PIP_TARGET}
+ENV PATH=${PATH}:/home/user1/.local/bin
+
+# Install packages as root
+USER root
+RUN pip install --upgrade pip
+RUN pip install streamlit
+RUN pip install poetry==1.1.4
+RUN poetry install
+
+# Switch to non-root user before running application
+USER 1001
+CMD streamlit run rafa/streamlit_app/friday.py
