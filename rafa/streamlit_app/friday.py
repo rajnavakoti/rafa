@@ -32,8 +32,10 @@ st.sidebar.markdown('<h4 style="color: black; font-family: Courier, sans-serif; 
 st.sidebar.markdown("<br>", unsafe_allow_html=True)  # Add padding  
 st.sidebar.markdown("<br>", unsafe_allow_html=True)  # Add padding  
 st.sidebar.markdown("<br>", unsafe_allow_html=True)  # Add padding  
-chat_with = st.sidebar.selectbox('Talk to...💬', ['🦹‍♀️  Friday | The RAG-ger', '🐒 Ham | The CHAT-ter', '🥷 Tyler durden | Philospher'], key="chat_with")
+chat_with = st.sidebar.selectbox('Talk to...💬', ['🦹‍♀️  Friday | Private knowledge', '🐒 Ham | General knowledge', '🥷 Tyler durden | Philospher'], key="chat_with")
 st.sidebar.markdown(f"<h3 style='font-size: 70px;'>{chat_with.title}</h3>", unsafe_allow_html=True)
+chat_mode = st.sidebar.selectbox('Chat mode...💬', ['qa', 'chat'], key="chat_mode")
+st.sidebar.markdown(f"<h3 style='font-size: 70px;'>{chat_mode.title}</h3>", unsafe_allow_html=True)
 choose_your_space = st.sidebar.selectbox('Choose your slice 🍕', ['Enginnering & Techonology', 'People & Culture', 'Product & Design', 'Sales & Marketing', 'Strategy & Operations', 'Support & Success', 'All'])
 st.sidebar.markdown("Data available for 👇")    
 if choose_your_space == 'Enginnering & Techonology':
@@ -67,6 +69,16 @@ with title_container:
         st.markdown(' <br/><br/>  <h4 style="color: black; font-family: Courier, sans-serif; font-size: 20px; font-weight: thin;">..not just an AI, I AM FRIDAY</h4>',
             unsafe_allow_html=True)
 
+
+def ai_response(query_text, selected_chat_mode):
+    response = requests.post('http://localhost:8000/query', json={'text': query_text, 'chat_mode': selected_chat_mode})
+    print("chat response content is this:", response.text)
+    response_json = json.loads(response.text)
+    response_text = response_json['response']
+    response_text = response_text.replace("\\n", "\n")
+    return response_text
+
+
 # Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -88,7 +100,9 @@ if prompt := st.chat_input("What'sup?"):
     # Display assistant response in chat message container
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         with st.spinner("Thinking!"):
-            response = chat_response(prompt)
+            print("user input is: ", prompt)
+            print("chat mdoe is: ", chat_mode)
+            response = ai_response(prompt, chat_mode)
             st.write(response)
             message = {"role": "assistant", "content": response}
             st.session_state.messages.append(message)

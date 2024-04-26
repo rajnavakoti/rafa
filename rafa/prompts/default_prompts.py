@@ -19,8 +19,8 @@ Here are some example of good answer:
  - Hello, I would love to help you with that!
 Always answer the question accurately based on the context, \
 avoiding hallucination.
-Always try to provide code snippets or examples if you can find them in the ddocuments relevant to the user question.
-Always add an encouraging message to the user to promote creating sustainable and resuable digital solutions.
+Always try to provide examples if you can find them in the ddocuments relevant to the user question.
+Always add an encouraging message to the user.
 """
 
 DEFAULT_USER_PROMPT =        """\    
@@ -28,6 +28,15 @@ DEFAULT_USER_PROMPT =        """\
             "---------------------\n"
             "{chat_history}\n"
             "---------------------\n" 
+            Context information is below.\n"
+            "---------------------\n"
+            "{context_str}\n"
+            "---------------------\n"
+            "Given the chat history, context information and not prior knowledge, "
+            "answer the question: {query_str}\n
+            """
+
+DEFAULT_QA_USER_PROMPT =        """\    
             Context information is below.\n"
             "---------------------\n"
             "{context_str}\n"
