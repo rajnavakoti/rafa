@@ -2,6 +2,10 @@ import streamlit as st
 import requests
 import json
 import os
+from PIL import Image
+
+USER_AVATAR = "../assests/user.png"
+BOT_AVATAR = "../assests/friday.png"
 
 def query_response(query_text):
     response = requests.post('http://localhost:8000/query', json={'text': query_text})
@@ -19,12 +23,49 @@ def chat_response(query_text):
     response_text = response_text.replace("\\n", "\n")
     return response_text
 
-st.title('Friday')
+# st.title('Friday')
 # image = st.image('path_to_image', use_column_width=False, width=100)
-st.sidebar.markdown("[datasets](#datasets)")
-st.sidebar.markdown("[chat](#chat)")
-st.sidebar.markdown("[documentation](#documentation)")
-st.subheader("I'm an AI assistant 🧠 💬 📚")
+img = Image.open('../assests/tgif.png')
+st.sidebar.image(img, use_column_width=False, width=350, clamp=True)
+st.sidebar.markdown('<h4 style="color: black; font-family: Courier, sans-serif; font-size: 20px; font-weight: thin; text-align: center;">THANK GOD IT\'S FRIDAY 😸 </h4>',
+            unsafe_allow_html=True)
+st.sidebar.markdown("<br>", unsafe_allow_html=True)  # Add padding  
+st.sidebar.markdown("<br>", unsafe_allow_html=True)  # Add padding  
+st.sidebar.markdown("<br>", unsafe_allow_html=True)  # Add padding  
+chat_with = st.sidebar.selectbox('Talk to...💬', ['🦹‍♀️  Friday | The RAG-ger', '🐒 Ham | The CHAT-ter', '🥷 Tyler durden | Philospher'], key="chat_with")
+st.sidebar.markdown(f"<h3 style='font-size: 70px;'>{chat_with.title}</h3>", unsafe_allow_html=True)
+choose_your_space = st.sidebar.selectbox('Choose your slice 🍕', ['Enginnering & Techonology', 'People & Culture', 'Product & Design', 'Sales & Marketing', 'Strategy & Operations', 'Support & Success', 'All'])
+st.sidebar.markdown("Data available for 👇")    
+if choose_your_space == 'Enginnering & Techonology':
+    st.sidebar.markdown('Labels for Enginnering & Techonology')
+elif choose_your_space == 'Fulfilment | Domain':
+    st.sidebar.markdown('Labels for Fulfilment & Domain')
+elif choose_your_space == 'People & Culture':
+    st.sidebar.markdown('Labels for People & Culture')
+elif choose_your_space == 'Product & Design':
+    st.sidebar.markdown('Labels for Product & Design')
+elif choose_your_space == 'Sales & Marketing':
+    st.sidebar.markdown('Labels for Sales & Marketing')
+elif choose_your_space == 'Strategy & Operations':
+    st.sidebar.markdown('Labels for Strategy & Operations')
+elif choose_your_space == 'Support & Success':
+    st.sidebar.markdown('Labels for Support & Success')
+elif choose_your_space == 'All':
+    st.sidebar.markdown('Labels for All')
+st.sidebar.markdown("[Documentation](#documentation)")
+#st.subheader("I'm an AI assistant 🧠 💬 📚")
+
+title_container = st.container()
+col1, col2, col3 = st.columns([1, 5, 20])
+image = Image.open('../assests/friday.png')
+with title_container:
+    with col1:
+        st.image(image, width=164, clamp=True, use_column_width=False, output_format='JPEG', channels='RGB', caption=None)
+    with col2:
+        st.write('&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;')
+    with col3:
+        st.markdown(' <br/><br/>  <h4 style="color: black; font-family: Courier, sans-serif; font-size: 20px; font-weight: thin;">..not just an AI, I AM FRIDAY</h4>',
+            unsafe_allow_html=True)
 
 # Initialize chat history
 if "messages" not in st.session_state:
@@ -32,19 +73,20 @@ if "messages" not in st.session_state:
 
 # Display chat messages from history on app rerun
 for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
+    avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
+    with st.chat_message(message["role"], avatar=avatar):
         st.markdown(message["content"])
 
 # React to user input
 if prompt := st.chat_input("What'sup?"):
     # Display user message in chat message container
-    st.chat_message("user").markdown(prompt)
+    st.chat_message("user", avatar=USER_AVATAR).markdown(prompt)
     # Add user message to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
 
     # response = f"Echo: {query_response(prompt)}"
     # Display assistant response in chat message container
-    with st.chat_message("assistant"):
+    with st.chat_message("assistant", avatar=BOT_AVATAR):
         with st.spinner("Thinking!"):
             response = chat_response(prompt)
             st.write(response)

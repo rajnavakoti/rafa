@@ -1,0 +1,27 @@
+version: '3'
+services:
+  intermediary_server:
+    build:
+      context: .
+      dockerfile: Dockerfile.intermediary_server
+    ports:
+      - "5000:5000"
+
+  websocket:
+    build:
+      context: .
+      dockerfile: Dockerfile.websocket
+    ports:
+      - "5001:5001"
+
+  streamlit_app:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit_app
+    ports:
+      - "8501:8501"
+
+  ollama:
+    build:
+      context: .
+      dockerfile: Dockerfile.ollama

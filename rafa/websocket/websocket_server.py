@@ -8,6 +8,7 @@ from llama_index.core.base.llms.types import MessageRole
 from rafa.prompts import default_prompts
 from rafa.indexing import vector_store_indexing
 from llama_index.core.llms import ChatMessage
+from llama_index.core.memory import ChatMemoryBuffer
 
 # Load environment variables from .env file
 load_dotenv()
@@ -16,6 +17,7 @@ LLM_MODEL = os.environ.get("LLM_MODEL")
 PERSIST_DB = os.environ.get("PERSIST_DB")
 SYSTEM_PROMPT = default_prompts.DEFAULT_SYSTEM_PROMPTS
 USER_PROMPT = default_prompts.DEFAULT_USER_PROMPT
+MEMORY = ChatMemoryBuffer.from_defaults(token_limit=3900)
 
 chat_text_qa_msgs = [
     ChatMessage(role=MessageRole.SYSTEM, content=SYSTEM_PROMPT),
@@ -38,14 +40,17 @@ async def websocket_handler(request):
 
 def get_query_answer(query: str) -> str:
     index = vector_store_indexing.index_from_storage()
-    query_engine = index.as_query_engine(text_qa_template=text_qa_template, llm=LLM, chat_mode='condense_plus_context')
+    query_engine = index.as_query_engine(text_qa_template=text_qa_template, llm=LLM, chat_mode='condense_plus_context',
+    memory=MEMORY)
     response = query_engine.query(query)
     print("response is: ", response)
     return response
 
 def get_chat_response(query: str) -> str:
     index = vector_store_indexing.index_from_storage()
-    chat_engine = index.as_chat_engine(verbose=True, llm=LLM, text_qa_template=text_qa_template, chat_mode='condense_plus_context')
+    print("memory is: ", MEMORY)
+    chat_engine = index.as_chat_engine(verbose=True, llm=LLM, text_qa_template=text_qa_template, chat_mode='condense_plus_context',
+    memory=MEMORY)
     response = chat_engine.chat(query)
     print("response is: ", response)
     return response

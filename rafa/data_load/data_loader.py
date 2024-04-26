@@ -12,7 +12,7 @@ required_exts = os.environ.get("REQUIRED_EXTS")
 
 def load_documents():
     if not os.path.exists(PERSIST_DB):
-        documents = SimpleDirectoryReader(input_dir=input_dir, 
+        documents = SimpleDirectoryReader(input_dir=input_dir, recursive=True,
                                           required_exts=required_exts).load_data()
         
         return documents

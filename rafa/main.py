@@ -37,7 +37,7 @@ def query_response(query: str) -> str:
     return response
 
 if __name__ == "__main__":
-    #document_indexing_flow()
-    query_response("can you check again?")
+    document_indexing_flow()
+    # query_response("can you check again?")
 
 
