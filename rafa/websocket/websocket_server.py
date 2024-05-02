@@ -35,7 +35,7 @@ chat_text_qa_msgs = [
 
 text_qa_template = ChatPromptTemplate(chat_text_qa_msgs)
 qa_text_qa_msgs = ChatPromptTemplate(qa_text_qa_msgs)
-LLM = Ollama(model=LLM_MODEL, base_url=BASE_URL)
+LLM = Ollama(model=LLM_MODEL, base_url=BASE_URL, request_timeout=90)
 
 async def websocket_handler(request):
     ws = aiohttp.web.WebSocketResponse()  # Create WebSocketResponse object
