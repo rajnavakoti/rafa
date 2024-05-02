@@ -1,12 +1,13 @@
-from aiohttp import web, ClientSession
+from aiohttp import web, ClientSession, ClientTimeout
 
 async def query_handler(request):
     data = await request.json()
     text = data['text']
     chat_mode = data['chat_mode']
 
-    session = ClientSession()
-    async with session.ws_connect('http://localhost:8080') as ws:
+    timeout = ClientTimeout(total=300)
+    session = ClientSession(timeout=timeout)
+    async with session.ws_connect('http://websocket:8080') as ws:
         await ws.send_json(data)
         msg = await ws.receive()
         return web.json_response({'response': msg.data})
@@ -14,4 +15,4 @@ async def query_handler(request):
 app = web.Application()
 app.add_routes([web.post('/query', query_handler)])
 
-web.run_app(app, port=8000)
+web.run_app(app, port=5001)

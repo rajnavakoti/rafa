@@ -4,11 +4,11 @@ import json
 import os
 from PIL import Image
 
-USER_AVATAR = "../assests/user.png"
-BOT_AVATAR = "../assests/friday.png"
+USER_AVATAR = "/app/rafa/assests/user.png"
+BOT_AVATAR = "/app/rafa/assests/friday.png"
 
 def query_response(query_text):
-    response = requests.post('http://localhost:8000/query', json={'text': query_text})
+    response = requests.post('http://intermediary_server:5001/query', json={'text': query_text})
     print("response content is this:", response.text)
     response_json = json.loads(response.text)
     response_text = response_json['response']
@@ -16,7 +16,7 @@ def query_response(query_text):
     return response
 
 def chat_response(query_text):
-    response = requests.post('http://localhost:8000/query', json={'text': query_text})
+    response = requests.post('http://intermediary_server:5001/query', json={'text': query_text})
     print("chat response content is this:", response.text)
     response_json = json.loads(response.text)
     response_text = response_json['response']
@@ -25,14 +25,14 @@ def chat_response(query_text):
 
 # st.title('Friday')
 # image = st.image('path_to_image', use_column_width=False, width=100)
-img = Image.open('../assests/tgif.png')
+img = Image.open('/app/rafa/assests/tgif.png')
 st.sidebar.image(img, use_column_width=False, width=350, clamp=True)
 st.sidebar.markdown('<h4 style="color: black; font-family: Courier, sans-serif; font-size: 20px; font-weight: thin; text-align: center;">THANK GOD IT\'S FRIDAY 😸 </h4>',
             unsafe_allow_html=True)
 st.sidebar.markdown("<br>", unsafe_allow_html=True)  # Add padding  
 st.sidebar.markdown("<br>", unsafe_allow_html=True)  # Add padding  
 st.sidebar.markdown("<br>", unsafe_allow_html=True)  # Add padding  
-chat_with = st.sidebar.selectbox('Talk to...💬', ['🦹‍♀️  Friday | Private knowledge', '🐒 Ham | General knowledge', '🥷 Tyler durden | Philospher'], key="chat_with")
+chat_with = st.sidebar.selectbox('Talk to...💬', ['🦹‍♀️  Friday | Private knowledge', '🐒 Ham | General knowledge'], key="chat_with")
 st.sidebar.markdown(f"<h3 style='font-size: 70px;'>{chat_with.title}</h3>", unsafe_allow_html=True)
 chat_mode = st.sidebar.selectbox('Chat mode...💬', ['qa', 'chat'], key="chat_mode")
 st.sidebar.markdown(f"<h3 style='font-size: 70px;'>{chat_mode.title}</h3>", unsafe_allow_html=True)
@@ -59,7 +59,7 @@ st.sidebar.markdown("[Documentation](#documentation)")
 
 title_container = st.container()
 col1, col2, col3 = st.columns([1, 5, 20])
-image = Image.open('../assests/friday.png')
+image = Image.open('/app/rafa/assests/friday.png')
 with title_container:
     with col1:
         st.image(image, width=164, clamp=True, use_column_width=False, output_format='JPEG', channels='RGB', caption=None)
@@ -70,8 +70,8 @@ with title_container:
             unsafe_allow_html=True)
 
 
-def ai_response(query_text, selected_chat_mode):
-    response = requests.post('http://localhost:8000/query', json={'text': query_text, 'chat_mode': selected_chat_mode})
+def ai_response(query_text, selected_chat_mode, selected_chat_with):
+    response = requests.post('http://intermediary_server:5001/query', json={'text': query_text, 'chat_mode': selected_chat_mode, 'talk_to': selected_chat_with})
     print("chat response content is this:", response.text)
     response_json = json.loads(response.text)
     response_text = response_json['response']
@@ -102,7 +102,8 @@ if prompt := st.chat_input("What'sup?"):
         with st.spinner("Thinking!"):
             print("user input is: ", prompt)
             print("chat mdoe is: ", chat_mode)
-            response = ai_response(prompt, chat_mode)
+            print("chat with is: ", chat_with)
+            response = ai_response(prompt, chat_mode, chat_with)
             st.write(response)
             message = {"role": "assistant", "content": response}
             st.session_state.messages.append(message)
