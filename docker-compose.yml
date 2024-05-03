@@ -5,14 +5,9 @@ services:
       context: .
       dockerfile: Dockerfile.intermediary_server
     ports:
-      - "5000:5000"
-
-  websocket:
-    build:
-      context: .
-      dockerfile: Dockerfile.websocket
-    ports:
       - "5001:5001"
+    networks:
+      - rafa-network
 
   streamlit_app:
     build:
@@ -20,8 +15,27 @@ services:
       dockerfile: Dockerfile.streamlit_app
     ports:
       - "8501:8501"
-
-  ollama:
+    networks:
+      - rafa-network
+      
+  websocket:
     build:
       context: .
-      dockerfile: Dockerfile.ollama
+      dockerfile: Dockerfile.websocket
+    ports:
+      - "8080:5002"
+    networks:
+      - rafa-network
+      
+  ollama-container:
+    image: ollama/ollama
+    volumes:
+      - ./data/ollama:/root/ollama
+    ports:
+      - "11434:11434"
+    networks:
+      - rafa-network
+
+networks:
+  rafa-network:
+    driver: bridge
