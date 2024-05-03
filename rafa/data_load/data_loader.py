@@ -1,22 +1,27 @@
 import os
+import logging
 from dotenv import load_dotenv
-
 from llama_index.core import SimpleDirectoryReader
 
 # Load environment variables from .env file
 load_dotenv()
 
-PERSIST_DB = os.environ.get("PERSIST_DB")
-input_dir = os.environ.get("INPUT_DIR")
-required_exts = os.environ.get("REQUIRED_EXTS")
+IS_DOCKER = os.environ.get("IS_DOCKER")
+PERSIST_DB = os.environ.get("DOCKER_PERSIST_DB") if IS_DOCKER else os.environ.get("LOCAL_PERSIST_DB")
+INPUT_DIR = os.environ.get("DOCKER_DATA_DIR") if IS_DOCKER else os.environ.get("LOCAL_DATA_DIR")
+REQUIRED_EXTS = os.environ.get("DOCKER_REQUIRED_EXTS") if IS_DOCKER else os.environ.get("LOCAL_REQUIRED_EXTS")
+
 
 def load_documents():
-    if not os.path.exists(PERSIST_DB):
-        documents = SimpleDirectoryReader(input_dir=input_dir, recursive=True,
-                                          required_exts=required_exts).load_data()
-        
-        return documents
-    else:
+    try:
+        if not os.path.exists(PERSIST_DB):
+            documents = SimpleDirectoryReader(input_dir=INPUT_DIR, recursive=True,
+                                              required_exts=REQUIRED_EXTS).load_data()
+            return documents
+        else:
+            return []
+    except Exception as e:
+        logging.error(f"Error occurred while loading documents: {str(e)}")
         return []
 
 documents = load_documents()
