@@ -54,12 +54,12 @@ async def websocket_handler(request):
                 data = json.loads(msg.data)
                 text = data['text']
                 chat_mode = data['chat_mode']
-                talk_to = data['talk_to']
+                collection = data['collection']
                 
                 if chat_mode == 'qa':
-                    response = get_query_response(text, talk_to)
+                    response = get_query_response(text, collection)
                 else:
-                    response = get_chat_response(text, talk_to)
+                    response = get_chat_response(text, collection)
                 
                 await ws.send_str(str(response))  # Convert response to string before sending
     except Exception as e:
@@ -68,12 +68,12 @@ async def websocket_handler(request):
     await ws.close()  # Close the WebSocket connection
     return ws
 
-def get_query_response(query: str, talk_to: str) -> str:
+def get_query_response(query: str, collection: str) -> str:
     try:
         if STORAGE_TYPE == "in-memory":
             index = vector_store_indexing.index_from_storage()
         elif STORAGE_TYPE == "chromadb":
-            index = vector_store_indexing.index_from_chroma_storage()
+            index = vector_store_indexing.index_from_chroma_storage(collection)
 
         query_engine = index.as_query_engine(text_qa_template=qa_text_qa_msgs, 
                                              llm=LLM)
@@ -84,12 +84,12 @@ def get_query_response(query: str, talk_to: str) -> str:
         logging.error(f"An error occurred while processing the query: {str(e)}")
         return "An error occurred while processing the query."
 
-def get_chat_response(query: str, talk_to: str) -> str:
+def get_chat_response(query: str, collection: str) -> str:
     try:
         if STORAGE_TYPE == "in-memory":
             index = vector_store_indexing.index_from_storage()
         elif STORAGE_TYPE == "chromadb":
-            index = vector_store_indexing.index_from_chroma_storage()
+            index = vector_store_indexing.index_from_chroma_storage(collection)
 
         chat_engine = index.as_chat_engine(verbose=True, llm=LLM, 
                                            text_qa_template=text_qa_template, 

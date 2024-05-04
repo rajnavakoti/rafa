@@ -80,15 +80,8 @@ def index_from_storage():
         # Log the value of PERSIST_DB
         logger.info("PERSIST_DB is: %s", PERSIST_DB)
 
-        # Get the root path of the project
-        root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        logger.info("Root path: %s", root_path)
-
-        # Create the path to the vector_db directory
-        vector_db_path = os.path.join(root_path, "vector_db")
-
         # Create a storage context with the vector_db_path
-        storage_context = StorageContext.from_defaults(persist_dir=vector_db_path)
+        storage_context = StorageContext.from_defaults(persist_dir=PERSIST_DB)
 
         # Load the index from storage using the specified embed_model, callback_manager, and storage_context
         index = load_index_from_storage(embed_model=EMBED_MODEL, callback_manager=CALLBACK_MANAGER,
@@ -104,7 +97,7 @@ def index_from_storage():
         logger.error("Error occurred while loading index from storage: %s", str(e))
         return None
     
-def index_from_chroma_storage():
+def index_from_chroma_storage(collection_name):
     """
     Indexes vectors from a chroma storage.
 
@@ -116,10 +109,13 @@ def index_from_chroma_storage():
 
     """
     # Create an instance of VectorStoreIndex using the vector_store and EMBED_MODEL
-    db = chromadb.PersistentClient(path=CHROMA_PERIST_DB)
-    print(db.list_collections())
-    chroma_collection = db.get_collection("allen")
-    vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
-    index = VectorStoreIndex.from_vector_store(vector_store, embed_model=EMBED_MODEL)
+    try:
+        db = chromadb.PersistentClient(path=CHROMA_PERIST_DB)
+        chroma_collection = db.get_or_create_collection(collection_name)
+        vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
+        index = VectorStoreIndex.from_vector_store(vector_store, embed_model=EMBED_MODEL)
 
-    return index
+        return index
+    except Exception as e:
+        logger.error("Error occurred while indexing vectors from chroma storage: %s", str(e))
+        return None

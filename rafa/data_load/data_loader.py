@@ -11,6 +11,7 @@ PERSIST_DB = os.environ.get("DOCKER_PERSIST_DB") if IS_DOCKER else os.environ.ge
 INPUT_DIR = os.environ.get("DOCKER_DATA_DIR") if IS_DOCKER else os.environ.get("LOCAL_DATA_DIR")
 REQUIRED_EXTS = os.environ.get("DOCKER_REQUIRED_EXTS") if IS_DOCKER else os.environ.get("LOCAL_REQUIRED_EXTS")
 CHROMA_PERSIST_DB = os.environ.get("DOCKER_CHROMA_PERSIST_DB") if IS_DOCKER else os.environ.get("LOCAL_CHROMA_PERSIST_DB")
+DATA_COLLECTION_PATH = os.environ.get("DOCKER_DATA_DIR") if IS_DOCKER else os.environ.get("LOCAL_DATA_DIR")
 
 
 def load_documents():
@@ -26,17 +27,8 @@ def load_documents():
         return []
     
 def chroma_load_documents(collection_name):
-    print("Loading documents for collection: ", collection_name)
-    collection_dir = os.path.join(INPUT_DIR, collection_name)
-    
-    print(collection_dir)
-    if not os.path.exists(CHROMA_PERSIST_DB):
-        documents = SimpleDirectoryReader(input_dir=collection_dir, recursive=True,
-                                          required_exts=REQUIRED_EXTS).load_data()
-        
-        print(documents.count())
-        return documents
-    else:
-        return []
+    logging.info("Loading documents for collection: %s", collection_name)
+    documents = SimpleDirectoryReader(DATA_COLLECTION_PATH + "/" + collection_name, recursive=True).load_data()       
+    return documents
 
 documents = load_documents()

@@ -10,12 +10,17 @@ from rafa.embedding import embedding_generator
 from rafa.storage import context_storage
 from rafa.indexing import vector_store_indexing
 
+from llama_index.core import VectorStoreIndex, load_index_from_storage, StorageContext
+from llama_index.vector_stores.chroma import ChromaVectorStore
+from llama_index.core import SimpleDirectoryReader
+
 load_dotenv()
 
 IS_DOCKER = os.environ.get("IS_DOCKER")
 DATA_COLLECTION_PATH = os.environ.get("DOCKER_DATA_DIR") if IS_DOCKER else os.environ.get("LOCAL_DATA_DIR")
 CHROMA_PERSIST_DB = os.environ.get("DOCKER_CHROMA_PERSIST_DB") if IS_DOCKER else os.environ.get("LOCAL_CHROMA_PERSIST_DB")
 STORAGE_TYPE = os.environ.get("STORAGE_TYPE")
+EMBED_MODEL = os.environ.get("DOCKER_EMBED_MODEL") if IS_DOCKER else os.environ.get("LOCAL_EMBED_MODEL")
 
 # Configure logging
 logging.basicConfig(filename='app.log', level=logging.ERROR)
@@ -32,15 +37,17 @@ def document_indexing_flow():
 def chroma_document_indexing_flow():
     try:
         collections = [folder for folder in os.listdir(DATA_COLLECTION_PATH) if os.path.isdir(os.path.join(DATA_COLLECTION_PATH, folder))]
-        print(collections)
-        db = chromadb.PersistentClient(path=CHROMA_PERSIST_DB)
-        for collection in collections:            
-            collection_name = db.get_or_create_collection(collection)
-            vector_store = ChromaVectorStore(chroma_collection=collection_name)
+        for collection in collections:
+            documents = data_loader.chroma_load_documents(collection)
+            db = chromadb.PersistentClient(path=CHROMA_PERSIST_DB)
+            logging.info(f"Creating collection: {collection}")
+
+            vector_store = ChromaVectorStore(chroma_collection=db.get_or_create_collection(collection))
             storage_context = context_storage.get_chroma_storage_context(vector_store)
 
-            documents = data_loader.chroma_load_documents(collection)
-            vector_store_indexing.chroma_index_vector_store(documents, storage_context)
+            index_vector_store = vector_store_indexing.chroma_index_vector_store(
+                documents, storage_context
+            )
     except Exception as e:
         logging.error(f"Error in chroma document indexing flow: {str(e)}")
 
