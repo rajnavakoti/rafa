@@ -23,7 +23,7 @@ services:
       context: .
       dockerfile: Dockerfile.websocket
     ports:
-      - "8080:5002"
+      - "8080:8080"
     networks:
       - rafa-network
       
