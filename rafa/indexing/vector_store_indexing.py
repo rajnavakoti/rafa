@@ -27,6 +27,11 @@ def index_vector_store(nodes, storage_context):
     except Exception as e:
         logger.error("Error occurred during vector store indexing: %s", str(e))
 
+def chroma_index_vector_store(documents, storage_context):
+    index = VectorStoreIndex.from_documents(
+        documents, storage_context=storage_context, 
+        embed_model=EMBED_MODEL)
+
 def index_from_storage():
     try:
         logger.info("PERSIST_DB is: %s", PERSIST_DB)
@@ -41,3 +46,8 @@ def index_from_storage():
     except Exception as e:
         logger.error("Error occurred while loading index from storage: %s", str(e))
         return None
+    
+def index_from_chroma_storage(vector_store):
+    index = VectorStoreIndex.from_vector_store(vector_store, embed_model=EMBED_MODEL)
+
+    return index
