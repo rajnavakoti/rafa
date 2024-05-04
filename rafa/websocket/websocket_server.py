@@ -22,6 +22,7 @@ MEMORY_TOKEN_LIMIT = os.environ.get("DOCKER_CHAT_MEOMRY_TOKEN_LIMIT") if IS_DOCK
 OLLAMA_BASE_URL = os.environ.get("DOCKER_OLLAMA_SERVER") if IS_DOCKER else os.environ.get("LOCAL_OLLAMA_SERVER")
 OLLAMA_SERVER_CONNECTION_TIMEOUT = os.environ.get("DOCKER_OLLAMA_SERVER_TIMEOUT") if IS_DOCKER else os.environ.get("LOCAL_OLLAMA_SERVER_TIMEOUT")
 CHAT_MODE = os.environ.get("DOCKER_CHAT_MODE") if IS_DOCKER else os.environ.get("LOCAL_CHAT_MODE")
+STORAGE_TYPE = os.environ.get("STORAGE_TYPE")
 
 SYSTEM_PROMPT = default_prompts.DEFAULT_SYSTEM_PROMPTS
 USER_PROMPT = default_prompts.DEFAULT_USER_PROMPT
@@ -69,7 +70,10 @@ async def websocket_handler(request):
 
 def get_query_response(query: str, talk_to: str) -> str:
     try:
-        index = vector_store_indexing.index_from_storage()
+        if STORAGE_TYPE == "in-memory":
+            index = vector_store_indexing.index_from_storage()
+        elif STORAGE_TYPE == "chromadb":
+            index = vector_store_indexing.index_from_chroma_storage()
 
         query_engine = index.as_query_engine(text_qa_template=qa_text_qa_msgs, 
                                              llm=LLM)
@@ -82,7 +86,10 @@ def get_query_response(query: str, talk_to: str) -> str:
 
 def get_chat_response(query: str, talk_to: str) -> str:
     try:
-        index = vector_store_indexing.index_from_storage()
+        if STORAGE_TYPE == "in-memory":
+            index = vector_store_indexing.index_from_storage()
+        elif STORAGE_TYPE == "chromadb":
+            index = vector_store_indexing.index_from_chroma_storage()
 
         chat_engine = index.as_chat_engine(verbose=True, llm=LLM, 
                                            text_qa_template=text_qa_template, 

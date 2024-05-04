@@ -32,15 +32,15 @@ def document_indexing_flow():
 def chroma_document_indexing_flow():
     try:
         collections = [folder for folder in os.listdir(DATA_COLLECTION_PATH) if os.path.isdir(os.path.join(DATA_COLLECTION_PATH, folder))]
-        with chromadb.PersistentClient(path=CHROMA_PERSIST_DB) as db:
-            for collection_name in collections:
-                documents = data_loader.chroma_load_documents(collection_name)
-                collection = db.get_or_create_collection(collection_name)
-                vector_store = ChromaVectorStore(chroma_collection=collection)
-                storage_context = context_storage.get_chroma_storage_context(vector_store)
-                vector_store_indexing.chroma_index_vector_store(documents, storage_context)
+        print(collections)
+        db = chromadb.PersistentClient(path=CHROMA_PERSIST_DB)
+        for collection in collections:            
+            collection_name = db.get_or_create_collection(collection)
+            vector_store = ChromaVectorStore(chroma_collection=collection_name)
+            storage_context = context_storage.get_chroma_storage_context(vector_store)
 
-                print(chromadb.PersistentClient(path=CHROMA_PERSIST_DB).list_collections())
+            documents = data_loader.chroma_load_documents(collection)
+            vector_store_indexing.chroma_index_vector_store(documents, storage_context)
     except Exception as e:
         logging.error(f"Error in chroma document indexing flow: {str(e)}")
 

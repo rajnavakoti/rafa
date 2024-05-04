@@ -26,12 +26,15 @@ def load_documents():
         return []
     
 def chroma_load_documents(collection_name):
+    print("Loading documents for collection: ", collection_name)
     collection_dir = os.path.join(INPUT_DIR, collection_name)
     
+    print(collection_dir)
     if not os.path.exists(CHROMA_PERSIST_DB):
         documents = SimpleDirectoryReader(input_dir=collection_dir, recursive=True,
                                           required_exts=REQUIRED_EXTS).load_data()
         
+        print(documents.count())
         return documents
     else:
         return []
