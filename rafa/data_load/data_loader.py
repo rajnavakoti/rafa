@@ -10,6 +10,8 @@ IS_DOCKER = os.environ.get("IS_DOCKER")
 PERSIST_DB = os.environ.get("DOCKER_PERSIST_DB") if IS_DOCKER else os.environ.get("LOCAL_PERSIST_DB")
 INPUT_DIR = os.environ.get("DOCKER_DATA_DIR") if IS_DOCKER else os.environ.get("LOCAL_DATA_DIR")
 REQUIRED_EXTS = os.environ.get("DOCKER_REQUIRED_EXTS") if IS_DOCKER else os.environ.get("LOCAL_REQUIRED_EXTS")
+CHROMA_PERSIST_DB = os.environ.get("DOCKER_CHROMA_PERSIST_DB") if IS_DOCKER else os.environ.get("LOCAL_CHROMA_PERSIST_DB")
+DATA_COLLECTION_PATH = os.environ.get("DOCKER_DATA_DIR") if IS_DOCKER else os.environ.get("LOCAL_DATA_DIR")
 
 
 def load_documents():
@@ -23,5 +25,10 @@ def load_documents():
     except Exception as e:
         logging.error(f"Error occurred while loading documents: {str(e)}")
         return []
+    
+def chroma_load_documents(collection_name):
+    logging.info("Loading documents for collection: %s", collection_name)
+    documents = SimpleDirectoryReader(DATA_COLLECTION_PATH + "/" + collection_name, recursive=True).load_data()       
+    return documents
 
 documents = load_documents()

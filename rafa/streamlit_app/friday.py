@@ -13,6 +13,7 @@ USER_AVATAR = os.environ.get("DOCKER_USER_AVATAR") if IS_DOCKER else os.environ.
 FRIDAY_AVATAR = os.environ.get("DOCKER_FRIDAY_AVATAR") if IS_DOCKER else os.environ.get("LOCAL_FRIDAY_AVATAR")
 INTERMEDIARY_SERVER = os.environ.get("DOCKER_INTERMEDIATE_SERVER") if IS_DOCKER else os.environ.get("LOCAL_INTERMEDIATE_SERVER")
 BANNER = os.environ.get("DOCKER_BANNER") if IS_DOCKER else os.environ.get("LOCAL_BANNER")
+COLLECTION_NAME = os.environ.get("COLLECTION")
 
 try:
     # Sidebar content
@@ -55,7 +56,7 @@ try:
     def ask_friday(query_text, selected_chat_mode, selected_chat_with):
         response = requests.post(
             f'{INTERMEDIARY_SERVER}/query',
-            json={'text': query_text, 'chat_mode': selected_chat_mode, 'talk_to': selected_chat_with}
+            json={'text': query_text, 'chat_mode': selected_chat_mode, 'talk_to': selected_chat_with, 'collection': COLLECTION_NAME}
         )
         logging.info("Chat response content: %s", response.text)
         response_text = response.json()['response'].replace("\\n", "\n")
