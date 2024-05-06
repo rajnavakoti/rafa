@@ -16,6 +16,8 @@ IS_DOCKER = os.environ.get("IS_DOCKER")
 PERSIST_DB = os.environ.get("DOCKER_PERSIST_DB") if IS_DOCKER else os.environ.get("LOCAL_PERSIST_DB")
 CHROMA_PERIST_DB = os.environ.get("DOCKER_CHROMA_PERSIST_DB") if IS_DOCKER else os.environ.get("LOCAL_CHROMA_PERSIST_DB")
 EMBED_MODEL = os.environ.get("DOCKER_EMBED_MODEL") if IS_DOCKER else os.environ.get("LOCAL_EMBED_MODEL")
+CHROMA_DB_HOST = os.environ.get("CHROMA_DB_HOST")
+CHROMA_DB_PORT = os.environ.get("CHROMA_DB_PORT")
 
 CALLBACK_MANAGER = CallbackManager()
 
@@ -110,11 +112,14 @@ def index_from_chroma_storage(collection_name):
     """
     # Create an instance of VectorStoreIndex using the vector_store and EMBED_MODEL
     try:
-        db = chromadb.PersistentClient(path=CHROMA_PERIST_DB)
+        if IS_DOCKER:
+            db = chromadb.HttpClient(host=CHROMA_DB_HOST, port=CHROMA_DB_PORT)
+        else:
+            db = chromadb.PersistentClient(path=CHROMA_PERIST_DB)
         chroma_collection = db.get_or_create_collection(collection_name)
         vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
         index = VectorStoreIndex.from_vector_store(vector_store, embed_model=EMBED_MODEL)
-
+        logger.info("Indexing vectors from chroma storage completed successfully.")
         return index
     except Exception as e:
         logger.error("Error occurred while indexing vectors from chroma storage: %s", str(e))

@@ -26,11 +26,29 @@ services:
       - "8080:8080"
     networks:
       - rafa-network
+
+  data-loader-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.data_loader_service
+    ports:
+      - "5004:5004"
+    networks:
+      - rafa-network
+
+  chroma-db-container:
+    image: chromadb/chroma
+    volumes:
+      - .data/chroma:/chroma/chroma
+    ports:
+      - "8000:8000"
+    networks:
+      - rafa-network
       
   ollama-container:
     image: ollama/ollama
     volumes:
-      - ./data/ollama:/root/ollama
+      - ./llm/ollama:/root/ollama
     ports:
       - "11434:11434"
     networks:
