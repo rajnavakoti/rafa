@@ -1,18 +1,13 @@
 import os
 import logging
 from dotenv import load_dotenv
-from llama_index.llms.ollama import Ollama
 from llama_index.vector_stores.chroma import ChromaVectorStore
-from llama_index.core import StorageContext
 import chromadb
 from rafa.data_load import data_loader
 from rafa.embedding import embedding_generator
 from rafa.storage import context_storage
 from rafa.indexing import vector_store_indexing
-
-from llama_index.core import VectorStoreIndex, load_index_from_storage, StorageContext
 from llama_index.vector_stores.chroma import ChromaVectorStore
-from llama_index.core import SimpleDirectoryReader
 
 load_dotenv()
 
@@ -21,9 +16,8 @@ DATA_COLLECTION_PATH = os.environ.get("DOCKER_DATA_DIR") if IS_DOCKER else os.en
 CHROMA_PERSIST_DB = os.environ.get("DOCKER_CHROMA_PERSIST_DB") if IS_DOCKER else os.environ.get("LOCAL_CHROMA_PERSIST_DB")
 STORAGE_TYPE = os.environ.get("STORAGE_TYPE")
 EMBED_MODEL = os.environ.get("DOCKER_EMBED_MODEL") if IS_DOCKER else os.environ.get("LOCAL_EMBED_MODEL")
-
-# Configure logging
-logging.basicConfig(filename='app.log', level=logging.ERROR)
+CHROMA_DB_HOST = os.environ.get("CHROMA_DB_HOST")
+CHROMA_DB_PORT = os.environ.get("CHROMA_DB_PORT")
 
 def document_indexing_flow():
     try:
@@ -35,11 +29,15 @@ def document_indexing_flow():
         logging.error(f"Error in document indexing flow: {str(e)}")
 
 def chroma_document_indexing_flow():
+    logging.info("Chroma document indexing flow")
     try:
         collections = [folder for folder in os.listdir(DATA_COLLECTION_PATH) if os.path.isdir(os.path.join(DATA_COLLECTION_PATH, folder))]
         for collection in collections:
             documents = data_loader.chroma_load_documents(collection)
-            db = chromadb.PersistentClient(path=CHROMA_PERSIST_DB)
+            if IS_DOCKER:
+                db = chromadb.HttpClient(host=CHROMA_DB_HOST, port=CHROMA_DB_PORT)
+            else:
+                db = chromadb.PersistentClient(path=CHROMA_PERSIST_DB)
             logging.info(f"Creating collection: {collection}")
 
             vector_store = ChromaVectorStore(chroma_collection=db.get_or_create_collection(collection))

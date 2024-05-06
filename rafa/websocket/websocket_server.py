@@ -74,14 +74,15 @@ def get_query_response(query: str, collection: str) -> str:
             index = vector_store_indexing.index_from_storage()
         elif STORAGE_TYPE == "chromadb":
             index = vector_store_indexing.index_from_chroma_storage(collection)
-
         query_engine = index.as_query_engine(text_qa_template=qa_text_qa_msgs, 
                                              llm=LLM)
+        logging.info("Query engine created successfully.")
         response = query_engine.query(query)
+        logging.info("Query processed successfully.")
         logging.info("response is: {}".format(response))
         return response
     except Exception as e:
-        logging.error(f"An error occurred while processing the query: {str(e)}")
+        logging.error(f"An error occurred while processing the query at line {e.__traceback__.tb_lineno}: {str(e)}")
         return "An error occurred while processing the query."
 
 def get_chat_response(query: str, collection: str) -> str:
